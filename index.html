@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>宇辰的漂流瓶 🌊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --deep:#0a2a4a;--mid:#1a4a7a;--light:#2980b9;
+  --foam:#a8d8ea;--card:rgba(255,255,255,0.93);--dark:#1a2a3a;
+  --glass:rgba(255,255,255,0.14);--gline:rgba(255,255,255,0.22);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100vh;overflow-x:hidden}
+body{font-family:'Noto Serif SC',serif;
+  background:linear-gradient(160deg,#0a2a4a 0%,#1a4a7a 45%,#2980b9 75%,#a8d8ea 100%);
+  background-attachment:fixed}
+
+/* 海浪 */
+.ocean-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.wave{position:absolute;bottom:0;left:-100%;width:300%;height:160px;
+  border-radius:40%;animation:wroll linear infinite}
+.wave:nth-child(1){background:#a8d8ea;animation-duration:13s;opacity:.16;bottom:-15px}
+.wave:nth-child(2){background:#2980b9;animation-duration:19s;opacity:.11;bottom:8px}
+.wave:nth-child(3){background:#fff;animation-duration:25s;opacity:.06;bottom:25px}
+@keyframes wroll{
+  0%{transform:translateX(0) rotate(0)}
+  50%{transform:translateX(25%) rotate(.8deg)}
+  100%{transform:translateX(50%) rotate(0)}
+}
+.bubble{position:fixed;border-radius:50%;pointer-events:none;
+  background:rgba(168,216,234,.18);border:1px solid rgba(168,216,234,.35);
+  animation:bfloat linear infinite}
+@keyframes bfloat{
+  0%{transform:translateY(105vh) scale(0);opacity:0}8%{opacity:1}
+  92%{opacity:.5}100%{transform:translateY(-8vh) scale(1);opacity:0}
+}
+
+/* 布局 */
+#app{position:relative;z-index:10;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;padding-bottom:60px}
+
+/* Header */
+.hdr{width:100%;max-width:480px;padding:28px 18px 10px;text-align:center}
+.hdr-title{font-family:'Ma Shan Zheng',cursive;font-size:2.1rem;color:#fff;letter-spacing:5px;
+  text-shadow:0 2px 18px rgba(0,0,0,.4),0 0 35px rgba(168,216,234,.5)}
+.hdr-sub{font-size:.78rem;color:rgba(255,255,255,.6);letter-spacing:2px;margin-top:4px}
+.hdr-nav{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+
+/* 导航按钮 */
+.nbtn{padding:7px 20px;border-radius:20px;border:1px solid var(--gline);background:var(--glass);
+  color:rgba(255,255,255,.8);font-family:'Noto Serif SC',serif;font-size:.82rem;cursor:pointer;
+  backdrop-filter:blur(8px);transition:all .22s}
+.nbtn:hover,.nbtn.on{background:rgba(255,255,255,.26);color:#fff;border-color:rgba(255,255,255,.45)}
+.ubadge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;
+  background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.78);font-size:.78rem}
+.ubadge button{background:none;border:none;color:rgba(255,255,255,.48);
+  font-size:.72rem;cursor:pointer;text-decoration:underline;margin-left:2px}
+
+/* 页面 */
+.page{display:none;flex-direction:column;align-items:center;width:100%;padding:8px 0}
+.page.on{display:flex}
+
+/* 卡片 */
+.card{background:var(--card);border-radius:20px;padding:26px 22px;
+  width:100%;max-width:440px;margin:0 16px;
+  box-shadow:0 8px 38px rgba(0,0,0,.17),0 2px 8px rgba(0,0,0,.09);
+  backdrop-filter:blur(10px)}
+.card-title{font-family:'Ma Shan Zheng',cursive;font-size:1.4rem;
+  color:var(--deep);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+
+/* 标签栏 */
+.tabs{display:flex;background:rgba(255,255,255,.12);border-radius:14px;
+  padding:4px;gap:4px;margin-bottom:20px;border:1px solid rgba(255,255,255,.2);
+  backdrop-filter:blur(8px)}
+.tbtn{flex:1;padding:9px 4px;border-radius:10px;border:none;background:transparent;
+  color:rgba(255,255,255,.62);font-family:'Noto Serif SC',serif;font-size:.8rem;
+  cursor:pointer;transition:all .2s;letter-spacing:1px}
+.tbtn.on{background:rgba(255,255,255,.9);color:var(--deep);font-weight:600;
+  box-shadow:0 2px 8px rgba(0,0,0,.11)}
+
+/* 表单 */
+.fg{margin-bottom:15px}
+.fl{display:block;font-size:.8rem;color:#5a7a8a;margin-bottom:5px;letter-spacing:1px}
+.fi{width:100%;padding:12px 15px;border:1.5px solid #cde8f2;border-radius:12px;
+  font-family:'Noto Serif SC',serif;font-size:.93rem;color:var(--dark);
+  background:#f8fcff;outline:none;transition:border-color .2s,box-shadow .2s}
+.fi:focus{border-color:var(--light);box-shadow:0 0 0 3px rgba(41,128,185,.12);background:#fff}
+.fi::placeholder{color:#b0c8d8}
+textarea.fi{resize:vertical;min-height:115px;line-height:1.75}
+.hint{font-size:.74rem;color:#8aacbc;margin-top:5px;line-height:1.5}
+.cc{text-align:right;font-size:.73rem;color:#9ab8c8;margin-top:3px}
+.cc.warn{color:#d07020}
+
+/* 验证码行 */
+.crow{display:flex;gap:9px}
+.crow .fi{flex:1}
+.scbtn{flex-shrink:0;padding:12px 13px;border-radius:12px;
+  border:1.5px solid var(--light);background:#fff;color:var(--light);
+  font-size:.8rem;cursor:pointer;white-space:nowrap;transition:all .2s;
+  font-family:'Noto Serif SC',serif}
+.scbtn:hover:not(:disabled){background:var(--light);color:#fff}
+.scbtn:disabled{opacity:.5;cursor:not-allowed}
+
+/* 按钮 */
+.bp{width:100%;padding:14px;border-radius:14px;border:none;
+  background:linear-gradient(130deg,var(--light) 0%,var(--deep) 100%);
+  color:#fff;font-family:'Ma Shan Zheng',cursive;font-size:1.05rem;
+  letter-spacing:2px;cursor:pointer;transition:all .25s;
+  box-shadow:0 4px 14px rgba(41,128,185,.33)}
+.bp:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(41,128,185,.42)}
+.bp:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.bs{width:100%;padding:11px;border-radius:14px;margin-top:9px;
+  border:1.5px solid #cde8f2;background:#f8fcff;color:var(--mid);
+  font-family:'Noto Serif SC',serif;font-size:.9rem;cursor:pointer;transition:all .2s}
+.bs:hover{background:#e4f4fa;border-color:var(--light)}
+
+/* 瓶子卡片 */
+.bgrid{width:100%;max-width:440px;padding:0 16px;display:flex;flex-direction:column;gap:15px}
+.bc{background:var(--card);border-radius:17px;padding:19px 18px;
+  box-shadow:0 4px 18px rgba(0,0,0,.1);position:relative;overflow:hidden;
+  animation:bshow .38s ease-out both}
+@keyframes bshow{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.bc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--foam),var(--light),var(--foam))}
+.bico{font-size:1.7rem;margin-bottom:9px;display:block}
+.bcon{font-size:.93rem;color:#2a4a5a;line-height:1.82;white-space:pre-wrap;word-break:break-all}
+.bmeta{margin-top:11px;font-size:.73rem;color:#9ab8c8;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
+.tag-mine{background:linear-gradient(135deg,#fef0e0,#fde0c0);color:#b06010;
+  padding:2px 10px;border-radius:10px;font-size:.72rem}
+.tag-idol{background:linear-gradient(135deg,#e0f0fc,#b8d8f4);color:var(--deep);
+  padding:3px 11px;border-radius:10px;font-size:.76rem;font-weight:600}
+
+/* 偶像后台头部 */
+.ihdr{width:100%;max-width:440px;padding:0 16px 14px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.ihdr-t{font-family:'Ma Shan Zheng',cursive;font-size:1.15rem;color:#fff;
+  text-shadow:0 2px 10px rgba(0,0,0,.3)}
+.istat{background:rgba(255,255,255,.14);padding:4px 13px;border-radius:12px;
+  color:rgba(255,255,255,.78);font-size:.78rem;backdrop-filter:blur(8px)}
+.sbar{width:100%;max-width:440px;padding:0 16px 12px}
+.si{width:100%;padding:10px 15px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.14);
+  color:#fff;font-size:.86rem;font-family:'Noto Serif SC',serif;
+  outline:none;backdrop-filter:blur(8px)}
+.si::placeholder{color:rgba(255,255,255,.42)}
+
+/* 状态 */
+.loading{text-align:center;padding:42px 18px;color:rgba(255,255,255,.68);font-size:.88rem}
+.loading::after{content:'';display:inline-block;width:22px;height:22px;
+  border:2px solid rgba(255,255,255,.28);border-top-color:#fff;
+  border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-left:9px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:48px 18px;color:rgba(255,255,255,.58)}
+.empty .ei{font-size:2.8rem;margin-bottom:11px;display:block}
+.empty p{font-size:.88rem;line-height:1.9}
+
+/* Toast */
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);
+  background:rgba(10,42,74,.92);color:#fff;padding:12px 22px;border-radius:28px;
+  font-size:.86rem;letter-spacing:1px;z-index:2000;display:none;
+  backdrop-filter:blur(10px);box-shadow:0 4px 18px rgba(0,0,0,.28);
+  max-width:82vw;text-align:center}
+.toast.ok{background:rgba(20,90,50,.92)}
+.toast.err{background:rgba(130,25,25,.92)}
+.toast.show{display:block;animation:tin .28s ease}
+@keyframes tin{from{opacity:0;top:4px}to{opacity:1;top:18px}}
+
+@media(max-width:360px){
+  .hdr-title{font-size:1.75rem}
+  .card{padding:20px 15px}
+}
+</style>
+</head>
+<body>
+
+<div class="ocean-bg">
+  <div class="wave"></div><div class="wave"></div><div class="wave"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<div id="app">
+
+  <!-- Header（登录后显示） -->
+  <div class="hdr" id="hdr" style="display:none">
+    <div class="hdr-title">🌊 宇辰的漂流瓶</div>
+    <div class="hdr-sub">写下你想说的话，漂向远方</div>
+    <div class="hdr-nav" id="hnav"></div>
+  </div>
+
+  <!-- ══ 登录页 ══ -->
+  <div class="page on" id="page-auth" style="padding-top:52px">
+    <div class="hdr" style="display:block">
+      <div class="hdr-title">🌊 宇辰的漂流瓶</div>
+      <div class="hdr-sub">写下你想说的话，漂向远方</div>
+    </div>
+    <div style="height:18px"></div>
+    <div class="card">
+      <div class="card-title">🐚 欢迎登录</div>
+      <div class="tabs" id="loginTabs">
+        <button class="tbtn on" onclick="switchMode('fan')">🌊 粉丝登录</button>
+        <button class="tbtn"    onclick="switchMode('idol')">🌟 偶像专属</button>
+      </div>
+
+      <!-- 粉丝登录 -->
+      <div id="fanPanel">
+        <div class="fg">
+          <label class="fl">你的昵称（首次登录时设置，最多12字）</label>
+          <input class="fi" id="inp-nick" type="text" placeholder="海边的风" maxlength="12">
+          <div class="hint">昵称仅偶像宇辰可见，粉丝之间完全匿名 🔒</div>
+        </div>
+        <div class="fg">
+          <label class="fl">邮箱地址</label>
+          <input class="fi" id="inp-email" type="email" placeholder="your@email.com"
+            onkeydown="if(event.key==='Enter')sendCode()">
+        </div>
+        <div class="fg">
+          <label class="fl">验证码</label>
+          <div class="crow">
+            <input class="fi" id="inp-code" type="text" placeholder="6 位验证码" maxlength="6"
+              onkeydown="if(event.key==='Enter')loginFan()">
+            <button class="scbtn" id="scbtn" onclick="sendCode()">发送验证码</button>
+          </div>
+        </div>
+        <button class="bp" onclick="loginFan()">🌊 漂入大海</button>
+        <div id="demoHint" class="hint" style="margin-top:10px;text-align:center;display:none">
+          📌 DEMO 模式：验证码打印在控制台（F12 → Console 标签页）
+        </div>
+      </div>
+
+      <!-- 偶像登录 -->
+      <div id="idolPanel" style="display:none">
+        <div class="fg">
+          <label class="fl">管理账号</label>
+          <input class="fi" id="inp-iu" type="text" placeholder="idol_qiuyuchen">
+        </div>
+        <div class="fg">
+          <label class="fl">专属密码</label>
+          <input class="fi" id="inp-ip" type="password" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter')loginIdol()">
+        </div>
+        <button class="bp" onclick="loginIdol()">🌟 进入捞瓶子后台</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 我的瓶子页 ══ -->
+  <div class="page" id="page-write">
+    <div style="width:100%;max-width:440px;padding:0 16px">
+      <div class="card">
+        <div class="card-title" id="wtitle">🍶 写下你的漂流瓶</div>
+
+        <!-- 写瓶子 -->
+        <div id="writeForm">
+          <div class="fg">
+            <label class="fl">你想对宇辰说什么…</label>
+            <textarea class="fi" id="ta-write" maxlength="500"
+              placeholder="亲爱的宇辰，&#10;&#10;我想对你说……"
+              oninput="cc('ta-write','cc-write')"></textarea>
+            <div class="cc" id="cc-write">0 / 500</div>
+          </div>
+          <button class="bp" id="btn-throw" onclick="throwBottle()">🌊 扔进大海</button>
+        </div>
+
+        <!-- 已有瓶子 -->
+        <div id="myBottle" style="display:none">
+          <div class="bc">
+            <span class="bico">🍶</span>
+            <div class="bcon" id="mb-content"></div>
+            <div class="bmeta">
+              <span class="tag-mine">我的瓶子</span>
+              <span id="mb-date"></span>
+            </div>
+          </div>
+          <button class="bs" onclick="startEdit()">✏️ 修改瓶子内容</button>
+        </div>
+
+        <!-- 编辑 -->
+        <div id="editForm" style="display:none">
+          <div class="fg">
+            <label class="fl">修改你的漂流瓶内容</label>
+            <textarea class="fi" id="ta-edit" maxlength="500"
+              oninput="cc('ta-edit','cc-edit')"></textarea>
+            <div class="cc" id="cc-edit">0 / 500</div>
+          </div>
+          <button class="bp" onclick="saveEdit()">💾 保存修改</button>
+          <button class="bs" onclick="cancelEdit()">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 漂流广场（匿名）══ -->
+  <div class="page" id="page-square">
+    <div class="bgrid" id="sq-grid">
+      <div class="loading">正在打捞漂流瓶</div>
+    </div>
+  </div>
+
+  <!-- ══ 偶像后台 ══ -->
+  <div class="page" id="page-idol">
+    <div class="ihdr">
+      <div class="ihdr-t">🌟 宇辰的捞瓶子后台</div>
+      <div class="istat" id="istat">加载中…</div>
+    </div>
+    <div class="sbar">
+      <input class="si" id="si" placeholder="🔍 搜索瓶子内容或粉丝昵称…" oninput="filterBottles()">
+    </div>
+    <div class="bgrid" id="idol-grid">
+      <div class="loading">正在捞瓶子</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══ 配置区 —— 部署 Laf 后只需改这两处 ══ */
+const CFG = {
+  API:       'https://YOUR_APP_ID.laf.run',  // ← 换成你的 Laf App 地址
+  IDOL_USER: 'idol_qiuyuchen',
+  IDOL_PASS: 'YuChen2024!',                  // ← 和 Laf 环境变量 IDOL_SECRET 保持一致
+  DEMO:      true,                           // ← 部署后改为 false
+}
+
+/* ══ DEMO 本地数据库 ══ */
+const DB = {
+  users:[
+    {id:'u1',email:'a@test.com',nickname:'海边的风',role:'fan'},
+    {id:'u2',email:'b@test.com',nickname:'星空下的梦',role:'fan'},
+    {id:'u3',email:'c@test.com',nickname:'浪里的鱼',role:'fan'},
+  ],
+  bottles:[
+    {id:'b1',user_id:'u1',nickname:'海边的风',
+     content:'宇辰，第一次看你演出是那个夏天，天空好蓝，你的笑容像阳光一样温暖了我。谢谢你一直在 💙',
+     created_at:'2024-06-15T10:00:00',updated_at:'2024-06-15T10:00:00'},
+    {id:'b2',user_id:'u2',nickname:'星空下的梦',
+     content:'希望你永远健康快乐，无论路上有多少风雨，记得我们一直在你身后。',
+     created_at:'2024-07-02T14:22:00',updated_at:'2024-07-02T14:22:00'},
+    {id:'b3',user_id:'u3',nickname:'浪里的鱼',
+     content:'每当我遇到挫折，都会想起你说的"努力不会辜负你"，你给了我很多力量，谢谢宇辰。',
+     created_at:'2024-07-10T09:11:00',updated_at:'2024-07-10T09:11:00'},
+  ],
+  codes:{},
+}
+
+/* ══ 状态 ══ */
+let S = { user:null, isIdol:false, myBottle:null, allBottles:[] }
+
+/* ══ 气泡 ══ */
+;(function(){
+  for(let i=0;i<10;i++){
+    const b=document.createElement('div'); b.className='bubble';
+    const s=Math.random()*38+8;
+    b.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;
+      animation-duration:${Math.random()*14+9}s;animation-delay:${Math.random()*10}s`;
+    document.body.appendChild(b);
+  }
+})()
+
+/* ══ 工具函数 ══ */
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className=`toast show ${type}`;
+  clearTimeout(el._t); el._t=setTimeout(()=>el.className='toast',2800);
+}
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(s){
+  if(!s)return''; const d=new Date(s);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+function cc(taId,ccId){
+  const v=document.getElementById(taId).value.length;
+  const el=document.getElementById(ccId);
+  el.textContent=`${v} / 500`; el.className='cc'+(v>450?' warn':'');
+}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('page-'+id)?.classList.add('on');
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.toggle('on',b.dataset.p===id));
+}
+
+/* ══ 敏感词 ══ */
+const BAD=['操','草','妈的','傻逼','sb','fuck','shit','bitch',
+  '垃圾人','废物','滚蛋','去死','赌博','博彩','诈骗','色情',
+  '毒品','枪支','自杀','反动','恐怖','微信号','QQ号','加我'];
+function hasBad(t){const l=t.toLowerCase().replace(/\s/g,'');return BAD.some(w=>l.includes(w.toLowerCase()))}
+
+/* ══ API 请求 ══ */
+async function api(path,body){
+  if(CFG.DEMO) return new Promise(r=>setTimeout(()=>r(_demo(path,body)),300+Math.random()*250));
+  try{
+    const res=await fetch(`${CFG.API}/${path}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+    });
+    return await res.json();
+  }catch(e){return{ok:false,error:'网络错误，请检查连接'}}
+}
+
+/* ══ DEMO 模拟后端 ══ */
+function _demo(path,d){
+  switch(path){
+    case 'send-code':{
+      const code=String(100000+Math.floor(Math.random()*900000));
+      DB.codes[d.contact]={code,exp:Date.now()+5*60*1000};
+      console.log(`📬 验证码 → ${d.contact} ：【${code}】`);
+      toast(`📬 DEMO验证码：${code}（见控制台F12）`,'ok');
+      return{ok:true};
+    }
+    case 'auth-verify':{
+      const s=DB.codes[d.contact];
+      if(!s||s.code!==d.code) return{ok:false,error:'验证码错误'};
+      if(Date.now()>s.exp) return{ok:false,error:'验证码已过期'};
+      let u=DB.users.find(x=>x.email===d.contact);
+      if(!u){
+        u={id:'u'+Date.now(),email:d.contact,nickname:d.nickname||'神秘粉丝',role:'fan'};
+        DB.users.push(u);
+      }else if(d.nickname&&d.nickname.trim()&&d.nickname!==u.nickname){
+        u.nickname=d.nickname.trim().slice(0,12);
+      }
+      return{ok:true,user:{id:u.id,email:u.email,nickname:u.nickname,role:u.role}};
+    }
+    case 'bottles-create':{
+      if(DB.bottles.find(b=>b.user_id===d.user_id)) return{ok:false,error:'你已经扔过一个瓶子了，可以修改它哦~'};
+      const b={id:'b'+Date.now(),user_id:d.user_id,nickname:d.nickname,
+        content:d.content,created_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+      DB.bottles.push(b); return{ok:true,bottle:b};
+    }
+    case 'bottles-update':{
+      const i=DB.bottles.findIndex(b=>b.id===d.id&&b.user_id===d.user_id);
+      if(i<0) return{ok:false,error:'找不到你的瓶子'};
+      DB.bottles[i].content=d.content;
+      DB.bottles[i].updated_at=new Date().toISOString();
+      return{ok:true,bottle:DB.bottles[i]};
+    }
+    case 'bottles-my':{
+      const b=DB.bottles.find(b=>b.user_id===d.user_id)||null;
+      return{ok:true,bottle:b?{id:b.id,content:b.content,
+        created_at:b.created_at,updated_at:b.updated_at}:null};
+    }
+    case 'bottles-list-public':{
+      const list=[...DB.bottles].reverse().map(b=>({
+        id:b.id,content:b.content,created_at:b.created_at,is_mine:d.user_id===b.user_id
+      }));
+      return{ok:true,bottles:list};
+    }
+    case 'bottles-list-admin':
+      return{ok:true,bottles:[...DB.bottles].reverse(),total:DB.bottles.length};
+    default:
+      return{ok:false,error:'未知接口'};
+  }
+}
+
+/* ══ 登录切换 ══ */
+function switchMode(m){
+  document.querySelectorAll('#loginTabs .tbtn').forEach((b,i)=>b.classList.toggle('on',i===(m==='fan'?0:1)));
+  document.getElementById('fanPanel').style.display  = m==='fan' ?'':'none';
+  document.getElementById('idolPanel').style.display = m==='idol'?'':'none';
+}
+
+/* ══ 发验证码 ══ */
+let cdEnd=0;
+async function sendCode(){
+  const email=document.getElementById('inp-email').value.trim();
+  if(!email||!email.includes('@')){toast('请输入有效邮箱','err');return}
+  if(Date.now()<cdEnd){toast(`请 ${Math.ceil((cdEnd-Date.now())/1000)}s 后重试`,'err');return}
+  const btn=document.getElementById('scbtn'); btn.disabled=true;
+  const r=await api('send-code',{contact:email});
+  if(r.ok){
+    cdEnd=Date.now()+60000; let sec=60;
+    const t=setInterval(()=>{sec--;btn.textContent=`${sec}s 后重发`;
+      if(sec<=0){clearInterval(t);btn.textContent='发送验证码';btn.disabled=false}},1000);
+    if(!CFG.DEMO) toast('验证码已发送，请查收邮件','ok');
+  }else{toast(r.error||'发送失败','err');btn.disabled=false}
+}
+
+/* ══ 粉丝登录 ══ */
+async function loginFan(){
+  const email=document.getElementById('inp-email').value.trim();
+  const code =document.getElementById('inp-code').value.trim();
+  const nick =document.getElementById('inp-nick').value.trim();
+  if(!email||!email.includes('@')){toast('请输入邮箱','err');return}
+  if(!code||code.length!==6){toast('请输入6位验证码','err');return}
+  const r=await api('auth-verify',{contact:email,code,nickname:nick||'神秘粉丝'});
+  if(r.ok){S.user=r.user;S.isIdol=false;enterFan();}
+  else toast(r.error||'登录失败','err');
+}
+
+/* ══ 偶像登录 ══ */
+function loginIdol(){
+  const u=document.getElementById('inp-iu').value.trim();
+  const p=document.getElementById('inp-ip').value;
+  if(u===CFG.IDOL_USER&&p===CFG.IDOL_PASS){
+    S.user={id:'idol',nickname:'邱宇辰',role:'idol'};
+    S.isIdol=true; enterIdol();
+  }else toast('账号或密码错误','err');
+}
+
+/* ══ 退出 ══ */
+function logout(){
+  S={user:null,isIdol:false,myBottle:null,allBottles:[]};
+  document.getElementById('hdr').style.display='none';
+  showPage('auth'); toast('已退出登录');
+}
+
+/* ══ 进入粉丝模式 ══ */
+function enterFan(){
+  document.getElementById('hdr').style.display='block';
+  document.getElementById('hnav').innerHTML=`
+    <button class="nbtn on" data-p="write"
+      onclick="showPage('write');loadMyBottle()">🍶 我的瓶子</button>
+    <button class="nbtn" data-p="square"
+      onclick="showPage('square');loadSquare()">🌊 漂流广场</button>
+    <div style="flex:1"></div>
+    <div class="ubadge">👤 ${esc(S.user.nickname)}
+      <button onclick="logout()">退出</button></div>`;
+  showPage('write'); loadMyBottle();
+}
+
+/* ══ 我的瓶子 ══ */
+async function loadMyBottle(){
+  const r=await api('bottles-my',{user_id:S.user.id});
+  S.myBottle=r.ok?r.bottle:null;
+  S.myBottle?renderMyBottle(S.myBottle):renderWriteForm();
+}
+function renderWriteForm(){
+  document.getElementById('wtitle').textContent='🍶 写下你的漂流瓶';
+  document.getElementById('writeForm').style.display='';
+  document.getElementById('myBottle').style.display='none';
+  document.getElementById('editForm').style.display='none';
+}
+function renderMyBottle(b){
+  document.getElementById('wtitle').textContent='🍶 我的漂流瓶';
+  document.getElementById('writeForm').style.display='none';
+  document.getElementById('editForm').style.display='none';
+  const mv=document.getElementById('myBottle'); mv.style.display='';
+  document.getElementById('mb-content').textContent=b.content;
+  document.getElementById('mb-date').textContent='扔出于 '+fmtDate(b.updated_at||b.created_at);
+  mv._bid=b.id; mv._bc=b.content;
+}
+async function throwBottle(){
+  const content=document.getElementById('ta-write').value.trim();
+  if(!content){toast('瓶子里还是空的哦~','err');return}
+  if(content.length<5){toast('再多写几个字吧~','err');return}
+  if(hasBad(content)){toast('内容包含不适词汇，请修改后再投递','err');return}
+  const btn=document.getElementById('btn-throw');
+  btn.disabled=true; btn.textContent='正在投入大海…';
+  const r=await api('bottles-create',{user_id:S.user.id,nickname:S.user.nickname,content});
+  btn.disabled=false; btn.textContent='🌊 扔进大海';
+  if(r.ok){toast('🌊 你的漂流瓶已漂向大海！','ok');S.myBottle=r.bottle;renderMyBottle(r.bottle);}
+  else toast(r.error||'投递失败','err');
+}
+function startEdit(){
+  const mv=document.getElementById('myBottle');
+  document.getElementById('ta-edit').value=mv._bc; cc('ta-edit','cc-edit');
+  document.getElementById('wtitle').textContent='✏️ 修改漂流瓶';
+  mv.style.display='none'; document.getElementById('editForm').style.display='';
+}
+async function saveEdit(){
+  const content=document.getElementById('ta-edit').value.trim();
+  if(!content){toast('内容不能为空','err');return}
+  if(hasBad(content)){toast('内容包含不适词汇','err');return}
+  const mv=document.getElementById('myBottle');
+  const r=await api('bottles-update',{id:mv._bid,user_id:S.user.id,content});
+  if(r.ok){toast('✅ 修改已保存','ok');S.myBottle=r.bottle;renderMyBottle(r.bottle);}
+  else toast(r.error||'保存失败','err');
+}
+function cancelEdit(){
+  renderMyBottle({id:document.getElementById('myBottle')._bid,
+    content:document.getElementById('myBottle')._bc,created_at:new Date().toISOString()});
+}
+
+/* ══ 漂流广场 ══ */
+async function loadSquare(){
+  const g=document.getElementById('sq-grid');
+  g.innerHTML='<div class="loading">正在打捞漂流瓶</div>';
+  const r=await api('bottles-list-public',{user_id:S.user?.id});
+  if(!r.ok){g.innerHTML='<div class="empty"><span class="ei">😢</span><p>加载失败，请刷新</p></div>';return}
+  if(!r.bottles?.length){
+    g.innerHTML='<div class="empty"><span class="ei">🌊</span><p>海面空空荡荡<br>还没有漂流瓶<br>快来第一个！</p></div>';return}
+  const ico=['🍶','🪸','🐚','🌊','💌','🌟','🐠','🐙','🦋','🪼'];
+  g.innerHTML=r.bottles.map((b,i)=>`
+    <div class="bc" style="animation-delay:${i*.05}s">
+      <span class="bico">${ico[i%ico.length]}</span>
+      <div class="bcon">${esc(b.content)}</div>
+      <div class="bmeta">
+        <span>${b.is_mine?'<span class="tag-mine">我的瓶子</span>':'🌊 匿名'}</span>
+        <span>${fmtDate(b.created_at)}</span>
+      </div>
+    </div>`).join('');
+}
+
+/* ══ 偶像后台 ══ */
+function enterIdol(){
+  document.getElementById('hdr').style.display='block';
+  document.getElementById('hnav').innerHTML=`
+    <div class="ubadge">🌟 宇辰专属后台
+      <button onclick="logout()">退出</button></div>`;
+  showPage('idol'); loadIdolBottles();
+}
+async function loadIdolBottles(){
+  const g=document.getElementById('idol-grid');
+  g.innerHTML='<div class="loading">正在捞瓶子</div>';
+  const r=await api('bottles-list-admin',{idol_secret:CFG.IDOL_PASS});
+  if(!r.ok){g.innerHTML='<div class="empty"><span class="ei">😢</span><p>加载失败</p></div>';return}
+  S.allBottles=r.bottles||[];
+  document.getElementById('istat').textContent=`共 ${S.allBottles.length} 个瓶子`;
+  renderIdol(S.allBottles);
+}
+function renderIdol(list){
+  const g=document.getElementById('idol-grid');
+  if(!list.length){g.innerHTML='<div class="empty"><span class="ei">🌊</span><p>还没有粉丝扔瓶子哦</p></div>';return}
+  const ico=['🍶','🪸','🐚','💌','🌟','🐠','🐙','🦋','🪼','🌈'];
+  g.innerHTML=list.map((b,i)=>`
+    <div class="bc" style="animation-delay:${i*.04}s">
+      <span class="bico">${ico[i%ico.length]}</span>
+      <div class="bcon">${esc(b.content)}</div>
+      <div class="bmeta">
+        <span class="tag-idol">👤 ${esc(b.nickname||'神秘粉丝')}</span>
+        <span>${fmtDate(b.updated_at||b.created_at)}</span>
+      </div>
+    </div>`).join('');
+}
+function filterBottles(){
+  const q=document.getElementById('si').value.toLowerCase();
+  renderIdol(q?S.allBottles.filter(b=>
+    b.content.toLowerCase().includes(q)||(b.nickname||'').toLowerCase().includes(q)):S.allBottles);
+}
+
+/* ══ 初始化 ══ */
+if(CFG.DEMO) document.getElementById('demoHint').style.display='block';
+</script>
+</body>
+</html>
