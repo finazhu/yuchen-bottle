@@ -575,6 +575,12 @@ function renderMyBottles(){
           <span class="tag-mine">我的瓶子 ${i+1}</span>
           <span>${fmtDate(b.updated_at||b.created_at)}</span>
         </div>
+        ${b.reply_emoji
+          ? `<div style="margin-top:10px;padding:10px;background:linear-gradient(135deg,#e0f4ff,#f0e8ff);border-radius:12px;font-size:.88rem;color:#2a4a6a">
+              ☀️ 已被宇辰捞起，并留下了 ${b.reply_emoji}
+             </div>`
+          : `<div style="margin-top:8px;font-size:.78rem;color:#9ab8c8">🌊 随风漂流中...</div>`
+        }
         <button class="bs" style="margin-top:10px" onclick="startEdit('${b.id}',${i})">✏️ 修改这个瓶子</button>
       </div>`).join('');
   }
@@ -688,7 +694,24 @@ function renderIdol(list){
         <span class="tag-idol">👤 ${esc(b.nickname||'神秘粉丝')}</span>
         <span>${fmtDate(b.updated_at||b.created_at)}</span>
       </div>
+      ${b.reply_emoji
+        ? `<div style="margin-top:10px;font-size:.82rem;color:#5a8a6a">✅ 已回复 ${b.reply_emoji}</div>`
+        : `<div style="margin-top:10px;display:flex;gap:8px">
+            <button onclick="replyBottle('${b.id}','🌊')" style="flex:1;padding:10px;border:none;border-radius:12px;background:#e8f4ff;font-size:1.1rem;cursor:pointer">🌊<br><span style="font-size:.7rem;color:#5a7a9a">收到了</span></button>
+            <button onclick="replyBottle('${b.id}','❤️')" style="flex:1;padding:10px;border:none;border-radius:12px;background:#fff0f0;font-size:1.1rem;cursor:pointer">❤️<br><span style="font-size:.7rem;color:#9a5a5a">谢谢你</span></button>
+            <button onclick="replyBottle('${b.id}','😆')" style="flex:1;padding:10px;border:none;border-radius:12px;background:#fffbe8;font-size:1.1rem;cursor:pointer">😆<br><span style="font-size:.7rem;color:#9a8a3a">被笑到</span></button>
+           </div>`
+      }
     </div>`).join('');
+}
+async function replyBottle(bottleId, emoji){
+  const r=await api('bottles-reply',{idol_secret:CFG.IDOL_PASS,bottle_id:bottleId,emoji});
+  if(r.ok){
+    toast(`${emoji} 已回复！粉丝会收到通知～`,'ok');
+    const b=S.allBottles.find(x=>x.id===bottleId);
+    if(b) b.reply_emoji=emoji;
+    renderIdol(S.allBottles);
+  } else toast(r.error||'回复失败','err');
 }
 function filterBottles(){
   const q=document.getElementById('si').value.toLowerCase();
