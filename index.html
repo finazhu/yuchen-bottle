@@ -285,10 +285,13 @@ textarea.fi{resize:vertical;min-height:115px;line-height:1.75}
   <div class="page" id="page-write">
     <div style="width:100%;max-width:440px;padding:0 16px">
       <div class="card">
-        <div class="card-title" id="wtitle">🍶 写下你的漂流瓶</div>
+        <div class="card-title" id="wtitle">🍶 我的漂流瓶</div>
 
-        <!-- 写瓶子 -->
-        <div id="writeForm">
+        <!-- 我的瓶子列表 -->
+        <div id="myBottlesList"></div>
+
+        <!-- 写新瓶子 -->
+        <div id="writeForm" style="display:none">
           <div class="fg">
             <label class="fl">你想对宇辰说什么…</label>
             <textarea class="fi" id="ta-write" maxlength="500"
@@ -297,22 +300,10 @@ textarea.fi{resize:vertical;min-height:115px;line-height:1.75}
             <div class="cc" id="cc-write">0 / 500</div>
           </div>
           <button class="bp" id="btn-throw" onclick="throwBottle()">🌊 扔进大海</button>
+          <button class="bs" onclick="cancelWrite()">取消</button>
         </div>
 
-        <!-- 已有瓶子 -->
-        <div id="myBottle" style="display:none">
-          <div class="bc">
-            <span class="bico">🍶</span>
-            <div class="bcon" id="mb-content"></div>
-            <div class="bmeta">
-              <span class="tag-mine">我的瓶子</span>
-              <span id="mb-date"></span>
-            </div>
-          </div>
-          <button class="bs" onclick="startEdit()">✏️ 修改瓶子内容</button>
-        </div>
-
-        <!-- 编辑 -->
+        <!-- 编辑瓶子 -->
         <div id="editForm" style="display:none">
           <div class="fg">
             <label class="fl">修改你的漂流瓶内容</label>
@@ -381,7 +372,7 @@ const DB = {
 }
 
 /* ══ 状态 ══ */
-let S = { user:null, isIdol:false, myBottle:null, allBottles:[] }
+let S = { user:null, isIdol:false, myBottles:[], allBottles:[] }
 
 /* ══ 气泡 ══ */
 ;(function(){
@@ -559,23 +550,49 @@ function enterFan(){
 /* ══ 我的瓶子 ══ */
 async function loadMyBottle(){
   const r=await api('bottles-my',{user_id:S.user.id});
-  S.myBottle=r.ok?r.bottle:null;
-  S.myBottle?renderMyBottle(S.myBottle):renderWriteForm();
+  S.myBottles=r.ok?(r.bottles||[]):[];
+  renderMyBottles();
+}
+function renderMyBottles(){
+  const list=document.getElementById('myBottlesList');
+  const writeForm=document.getElementById('writeForm');
+  const editForm=document.getElementById('editForm');
+  writeForm.style.display='none';
+  editForm.style.display='none';
+  const ico=['🍶','🌊','💌'];
+  if(!S.myBottles.length){
+    list.innerHTML=`
+      <div class="empty" style="padding:20px 0">
+        <span class="ei">🌊</span>
+        <p>你还没有漂流瓶<br>快来写下第一个！</p>
+      </div>`;
+  } else {
+    list.innerHTML=S.myBottles.map((b,i)=>`
+      <div class="bc" style="margin-bottom:12px">
+        <span class="bico">${ico[i%ico.length]}</span>
+        <div class="bcon">${esc(b.content)}</div>
+        <div class="bmeta">
+          <span class="tag-mine">我的瓶子 ${i+1}</span>
+          <span>${fmtDate(b.updated_at||b.created_at)}</span>
+        </div>
+        <button class="bs" style="margin-top:10px" onclick="startEdit('${b.id}',${i})">✏️ 修改这个瓶子</button>
+      </div>`).join('');
+  }
+  const canAdd=S.myBottles.length<3;
+  list.innerHTML+= canAdd
+    ? `<button class="bp" style="margin-top:8px" onclick="showWriteForm()">🌊 再扔一个漂流瓶（${S.myBottles.length}/3）</button>`
+    : `<div class="hint" style="text-align:center;margin-top:8px">已有3个漂流瓶，修改其中一个来更新内容吧～</div>`;
+}
+function showWriteForm(){
+  document.getElementById('writeForm').style.display='';
+  document.getElementById('ta-write').value='';
+  cc('ta-write','cc-write');
+}
+function cancelWrite(){
+  document.getElementById('writeForm').style.display='none';
 }
 function renderWriteForm(){
-  document.getElementById('wtitle').textContent='🍶 写下你的漂流瓶';
-  document.getElementById('writeForm').style.display='';
-  document.getElementById('myBottle').style.display='none';
-  document.getElementById('editForm').style.display='none';
-}
-function renderMyBottle(b){
-  document.getElementById('wtitle').textContent='🍶 我的漂流瓶';
-  document.getElementById('writeForm').style.display='none';
-  document.getElementById('editForm').style.display='none';
-  const mv=document.getElementById('myBottle'); mv.style.display='';
-  document.getElementById('mb-content').textContent=b.content;
-  document.getElementById('mb-date').textContent='扔出于 '+fmtDate(b.updated_at||b.created_at);
-  mv._bid=b.id; mv._bc=b.content;
+  renderMyBottles();
 }
 async function throwBottle(){
   const content=document.getElementById('ta-write').value.trim();
@@ -586,27 +603,39 @@ async function throwBottle(){
   btn.disabled=true; btn.textContent='正在投入大海…';
   const r=await api('bottles-create',{user_id:S.user.id,nickname:S.user.nickname,content});
   btn.disabled=false; btn.textContent='🌊 扔进大海';
-  if(r.ok){toast('🌊 你的漂流瓶已漂向大海！','ok');S.myBottle=r.bottle;renderMyBottle(r.bottle);}
-  else toast(r.error||'投递失败','err');
+  if(r.ok){
+    toast('🌊 你的漂流瓶已漂向大海！','ok');
+    S.myBottles.push(r.bottle);
+    document.getElementById('writeForm').style.display='none';
+    renderMyBottles();
+  } else toast(r.error||'投递失败','err');
 }
-function startEdit(){
-  const mv=document.getElementById('myBottle');
-  document.getElementById('ta-edit').value=mv._bc; cc('ta-edit','cc-edit');
-  document.getElementById('wtitle').textContent='✏️ 修改漂流瓶';
-  mv.style.display='none'; document.getElementById('editForm').style.display='';
+function startEdit(bid,idx){
+  const b=S.myBottles[idx];
+  document.getElementById('ta-edit').value=b.content;
+  cc('ta-edit','cc-edit');
+  document.getElementById('editForm').style.display='';
+  document.getElementById('editForm')._bid=bid;
+  document.getElementById('editForm')._idx=idx;
+  document.getElementById('myBottlesList').style.display='none';
 }
 async function saveEdit(){
   const content=document.getElementById('ta-edit').value.trim();
   if(!content){toast('内容不能为空','err');return}
   if(hasBad(content)){toast('内容包含不适词汇','err');return}
-  const mv=document.getElementById('myBottle');
-  const r=await api('bottles-update',{id:mv._bid,user_id:S.user.id,content});
-  if(r.ok){toast('✅ 修改已保存','ok');S.myBottle=r.bottle;renderMyBottle(r.bottle);}
-  else toast(r.error||'保存失败','err');
+  const ef=document.getElementById('editForm');
+  const r=await api('bottles-update',{id:ef._bid,user_id:S.user.id,content});
+  if(r.ok){
+    toast('✅ 修改已保存，瓶子重新漂向大海～','ok');
+    S.myBottles[ef._idx]=r.bottle;
+    ef.style.display='none';
+    document.getElementById('myBottlesList').style.display='';
+    renderMyBottles();
+  } else toast(r.error||'保存失败','err');
 }
 function cancelEdit(){
-  renderMyBottle({id:document.getElementById('myBottle')._bid,
-    content:document.getElementById('myBottle')._bc,created_at:new Date().toISOString()});
+  document.getElementById('editForm').style.display='none';
+  document.getElementById('myBottlesList').style.display='';
 }
 
 /* ══ 漂流广场 ══ */
