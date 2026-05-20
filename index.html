@@ -1190,8 +1190,26 @@ function renderIdol(list){
             <button onclick="replyBottle('${b.id}','😆')" style="flex:1;padding:10px;border:none;border-radius:12px;background:#fffbe8;font-size:1.1rem;cursor:pointer">😆<br><span style="font-size:.7rem;color:#9a8a3a">被笑到</span></button>
            </div>`
       }
+      <button onclick="toggleHistory('${b.id}','${b.user_id}')" style="width:100%;margin-top:8px;padding:7px;border:none;border-radius:10px;background:rgba(41,128,185,.08);color:#5a7a9a;font-size:.78rem;cursor:pointer">📜 查看历史留言</button>
+      <div id="hist-${b.id}" style="display:none;margin-top:8px;background:#f5f9fc;border-radius:10px;padding:10px;font-size:.8rem;color:#5a7a8a">加载中…</div>
     </div>`;
   }).join('');
+}
+
+async function toggleHistory(bottleId, userId){
+  const el=document.getElementById('hist-'+bottleId);
+  if(el.style.display!=='none'){el.style.display='none';return}
+  el.style.display='block';
+  el.innerHTML='<div style="color:#9ab8c8">加载中…</div>';
+  const r=await api('bottles-history',{idol_secret:CFG.IDOL_PASS,user_id:userId});
+  if(!r.ok||!r.history?.length){
+    el.innerHTML='<div style="color:#9ab8c8;text-align:center">暂无历史记录</div>';return;
+  }
+  el.innerHTML=r.history.map((h,i)=>`
+    <div style="padding:8px 0;${i>0?'border-top:1px solid rgba(0,0,0,.06)':''}">
+      <div style="color:#8aacbc;font-size:.72rem;margin-bottom:3px">${fmtDate(h.saved_at)}</div>
+      <div style="color:#3a5a6a;line-height:1.7">${esc(h.content)}</div>
+    </div>`).join('');
 }
 
 async function replyBottle(bottleId, emoji){
