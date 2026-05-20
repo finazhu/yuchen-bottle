@@ -186,6 +186,141 @@ textarea.fi{resize:vertical;min-height:115px;line-height:1.75}
 .gear-btn{background:none;border:none;color:rgba(255,255,255,.6);font-size:1.1rem;
   cursor:pointer;padding:4px 8px;border-radius:8px;transition:all .2s}
 .gear-btn:hover{background:rgba(255,255,255,.15);color:#fff}
+
+/* ══ 我的瓶子 - 图形展示 ══ */
+.my-bottles-visual{display:flex;justify-content:center;gap:18px;padding:10px 0 20px;flex-wrap:wrap}
+.my-bottle-item{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
+  transition:transform .22s}
+.my-bottle-item:hover{transform:translateY(-6px)}
+.bottle-svg-wrap{position:relative;width:72px;height:110px}
+.bottle-svg-wrap svg{width:100%;height:100%;filter:drop-shadow(0 4px 12px rgba(0,0,0,.18))}
+.bottle-svg-wrap.replied svg{filter:drop-shadow(0 0 14px rgba(255,220,80,.7)) drop-shadow(0 4px 12px rgba(0,0,0,.18))}
+.bottle-glow{position:absolute;inset:-8px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,220,80,.35) 0%,transparent 70%);
+  animation:glowPulse 1.8s ease-in-out infinite;pointer-events:none}
+@keyframes glowPulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+.bottle-label{font-size:.72rem;color:rgba(255,255,255,.75);text-align:center;letter-spacing:1px}
+.bottle-replied-tag{font-size:.68rem;background:linear-gradient(135deg,#ffd700,#ffaa00);
+  color:#5a3a00;padding:2px 8px;border-radius:8px;font-weight:600}
+
+/* 瓶子详情弹窗 */
+.bottle-detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;
+  display:none;align-items:center;justify-content:center;padding:20px}
+.bottle-detail-overlay.show{display:flex}
+.bottle-detail{background:linear-gradient(145deg,#f0f8ff,#e8f4fc);border-radius:22px;
+  padding:28px 24px;width:100%;max-width:360px;
+  box-shadow:0 16px 52px rgba(0,0,0,.25);position:relative}
+.bottle-detail-ico{font-size:2rem;text-align:center;margin-bottom:10px}
+.bottle-detail-title{font-family:'Ma Shan Zheng',cursive;font-size:1.15rem;color:var(--deep);
+  text-align:center;margin-bottom:16px}
+.bottle-detail-content{font-size:.93rem;color:#2a4a5a;line-height:1.85;
+  background:rgba(255,255,255,.7);border-radius:14px;padding:16px;
+  white-space:pre-wrap;word-break:break-all;max-height:220px;overflow-y:auto}
+.bottle-detail-reply{margin-top:14px;padding:13px 16px;
+  background:linear-gradient(135deg,#fff9e0,#fff0b0);border-radius:14px;
+  border:1px solid rgba(255,200,50,.4);font-size:.88rem;color:#5a4000;text-align:center}
+.bottle-detail-meta{margin-top:10px;font-size:.73rem;color:#8aacbc;text-align:center}
+.bottle-detail-close{position:absolute;top:12px;right:16px;background:none;border:none;
+  font-size:1.3rem;cursor:pointer;color:#8aacbc}
+.bottle-detail-edit{width:100%;margin-top:14px;padding:11px;border-radius:12px;
+  border:1.5px solid #cde8f2;background:#f8fcff;color:var(--mid);
+  font-family:'Noto Serif SC',serif;font-size:.88rem;cursor:pointer;transition:all .2s}
+.bottle-detail-edit:hover{background:#e4f4fa;border-color:var(--light)}
+
+/* ══ 漂流广场 - 海洋捞瓶 ══ */
+.ocean-square{width:100%;max-width:440px;padding:0 16px}
+.sq-count-bar{display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-bottom:18px;padding:8px 20px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;backdrop-filter:blur(8px)}
+.sq-count-bar span{color:rgba(255,255,255,.8);font-size:.8rem;letter-spacing:1px}
+.sq-dots{display:flex;gap:6px}
+.sq-dot{width:11px;height:11px;border-radius:50%;
+  background:rgba(255,255,255,.18);border:1px solid rgba(168,216,234,.5);transition:all .3s}
+.sq-dot.used{background:rgba(168,216,234,.3)}
+.sq-dot.active{background:#a8d8ea;box-shadow:0 0 7px rgba(168,216,234,.8)}
+
+.ocean-scene{position:relative;width:100%;height:300px;
+  border-radius:20px;overflow:hidden;cursor:pointer;margin-bottom:18px;
+  background:linear-gradient(180deg,#021728 0%,#0a2a4a 40%,#0d4f8c 80%,#1565a3 100%)}
+.sq-stars{position:absolute;inset:0;pointer-events:none}
+.sq-star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;
+  animation:sqTwinkle 2s infinite alternate}
+@keyframes sqTwinkle{0%{opacity:.15}100%{opacity:.85}}
+.sq-moon{position:absolute;top:14px;right:50px;width:32px;height:32px;
+  background:#fffbe6;border-radius:50%;
+  box-shadow:0 0 16px 5px rgba(255,251,200,.3);pointer-events:none}
+.sq-waves{position:absolute;bottom:0;left:0;right:0;height:100px;pointer-events:none}
+.sq-wave{position:absolute;bottom:0;left:-10%;width:120%;
+  border-radius:50% 50% 0 0/30% 30% 0 0;animation:sqWave 4s ease-in-out infinite}
+.sq-wave:nth-child(1){background:rgba(29,90,140,.65);height:60px;animation-delay:0s}
+.sq-wave:nth-child(2){background:rgba(13,79,140,.55);height:72px;animation-delay:.9s}
+.sq-wave:nth-child(3){background:rgba(10,42,74,.85);height:85px;animation-delay:1.8s}
+@keyframes sqWave{0%,100%{transform:translateX(0)}50%{transform:translateX(-4%)}}
+
+.sq-bottle{position:absolute;cursor:pointer;transform-origin:center bottom;
+  animation:sqFloat 3s ease-in-out infinite;transition:filter .2s}
+.sq-bottle:hover{filter:drop-shadow(0 0 10px rgba(168,216,234,.9))}
+@keyframes sqFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-11px) rotate(3deg)}}
+
+.sq-hint{position:absolute;bottom:95px;left:50%;transform:translateX(-50%);
+  color:rgba(200,235,255,.55);font-size:.75rem;pointer-events:none;white-space:nowrap;
+  animation:hintBob 2.2s ease-in-out infinite}
+@keyframes hintBob{0%,100%{opacity:.5;transform:translateX(-50%) translateY(0)}
+  50%{opacity:.85;transform:translateX(-50%) translateY(-4px)}}
+
+.sq-exhausted{text-align:center;padding:22px 16px;
+  background:rgba(255,255,255,.08);border-radius:16px;
+  border:1px solid rgba(255,255,255,.15);margin-top:8px}
+.sq-exhausted .ei{font-size:2.4rem;display:block;margin-bottom:10px}
+.sq-exhausted p{color:rgba(255,255,255,.65);font-size:.85rem;line-height:1.9}
+
+/* 捞瓶弹窗 */
+.catch-overlay{position:fixed;inset:0;background:rgba(0,20,40,.75);z-index:3000;
+  display:none;align-items:center;justify-content:center;padding:20px}
+.catch-overlay.show{display:flex}
+.catch-card{background:linear-gradient(145deg,#0a2a4a,#1a5a8a);
+  border:1px solid rgba(168,216,234,.35);border-radius:22px;
+  padding:26px 22px;width:100%;max-width:340px;position:relative;
+  box-shadow:0 16px 52px rgba(0,0,0,.4),0 0 40px rgba(168,216,234,.1)}
+.catch-ico{text-align:center;font-size:2.2rem;margin-bottom:8px}
+.catch-title{font-family:'Ma Shan Zheng',cursive;font-size:1.2rem;color:#e0f4ff;
+  text-align:center;margin-bottom:14px;letter-spacing:2px}
+.catch-content{font-size:.9rem;color:#c8e8f8;line-height:1.85;
+  background:rgba(0,0,0,.2);border-radius:14px;padding:15px;
+  white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto}
+.catch-meta{margin-top:10px;font-size:.73rem;color:rgba(168,216,234,.6);text-align:center}
+.catch-close{position:absolute;top:12px;right:16px;background:none;border:none;
+  font-size:1.3rem;cursor:pointer;color:rgba(168,216,234,.5)}
+.catch-close:hover{color:#a8d8ea}
+.catch-btn{width:100%;margin-top:16px;padding:12px;border-radius:14px;border:none;
+  background:linear-gradient(130deg,#2980b9,#0a2a4a);color:#fff;
+  font-family:'Ma Shan Zheng',cursive;font-size:1rem;letter-spacing:2px;cursor:pointer;
+  box-shadow:0 4px 14px rgba(41,128,185,.4)}
+.catch-btn:hover{opacity:.88}
+
+/* 捞起动画 */
+.catch-ripple-wrap{position:fixed;inset:0;z-index:2500;pointer-events:none;
+  display:flex;align-items:center;justify-content:center}
+.catch-ripple{width:80px;height:80px;border-radius:50%;
+  border:2px solid #a8d8ea;animation:ripOut .9s ease-out forwards}
+@keyframes ripOut{0%{transform:scale(.5);opacity:1}100%{transform:scale(3.5);opacity:0}}
+.catch-txt{color:#a8d8ea;font-size:1.1rem;margin-top:14px;
+  animation:fadeUp .9s ease forwards;font-family:'Ma Shan Zheng',cursive;letter-spacing:2px}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(8px)}60%{opacity:1}100%{opacity:0;transform:translateY(-18px)}}
+
+/* ══ 偶像端筛选tab ══ */
+.idol-filter-bar{width:100%;max-width:440px;padding:0 16px 12px;
+  display:flex;gap:8px}
+.ifilter-btn{flex:1;padding:8px 4px;border-radius:12px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.1);color:rgba(255,255,255,.65);
+  font-family:'Noto Serif SC',serif;font-size:.78rem;cursor:pointer;
+  backdrop-filter:blur(8px);transition:all .2s;letter-spacing:1px}
+.ifilter-btn.on{background:rgba(255,255,255,.88);color:var(--deep);font-weight:600;
+  border-color:rgba(255,255,255,.6)}
+.ifilter-btn .icount{display:inline-block;margin-left:4px;font-size:.7rem;
+  background:rgba(41,128,185,.25);border-radius:8px;padding:1px 6px}
+.ifilter-btn.on .icount{background:rgba(41,128,185,.18)}
 </style>
 </head>
 <body>
@@ -318,10 +453,33 @@ textarea.fi{resize:vertical;min-height:115px;line-height:1.75}
     </div>
   </div>
 
-  <!-- ══ 漂流广场（匿名）══ -->
+  <!-- ══ 漂流广场（海洋捞瓶）══ -->
   <div class="page" id="page-square">
-    <div class="bgrid" id="sq-grid">
-      <div class="loading">正在打捞漂流瓶</div>
+    <div class="ocean-square">
+      <div class="sq-count-bar">
+        <span>今日捞瓶</span>
+        <div class="sq-dots" id="sqDots">
+          <div class="sq-dot active"></div>
+          <div class="sq-dot"></div>
+          <div class="sq-dot"></div>
+        </div>
+        <span id="sqCountText">还剩 3 次</span>
+      </div>
+      <div class="ocean-scene" id="oceanScene">
+        <div class="sq-stars" id="sqStars"></div>
+        <div class="sq-moon"></div>
+        <div id="sqBottles"></div>
+        <div class="sq-hint" id="sqHint">点击瓶子，捞起一条漂流信 🌊</div>
+        <div class="sq-waves">
+          <div class="sq-wave"></div>
+          <div class="sq-wave"></div>
+          <div class="sq-wave"></div>
+        </div>
+      </div>
+      <div id="sqExhausted" style="display:none" class="sq-exhausted">
+        <span class="ei">🌙</span>
+        <p>今天的缘分已用完啦<br>明天再来捞瓶子吧～</p>
+      </div>
     </div>
   </div>
 
@@ -334,8 +492,46 @@ textarea.fi{resize:vertical;min-height:115px;line-height:1.75}
     <div class="sbar">
       <input class="si" id="si" placeholder="🔍 搜索瓶子内容或粉丝昵称…" oninput="filterBottles()">
     </div>
+    <div class="idol-filter-bar">
+      <button class="ifilter-btn on" id="ifilter-all" onclick="setIdolFilter('all')">全部 <span class="icount" id="ifc-all">0</span></button>
+      <button class="ifilter-btn" id="ifilter-no" onclick="setIdolFilter('no')">未回复 <span class="icount" id="ifc-no">0</span></button>
+      <button class="ifilter-btn" id="ifilter-yes" onclick="setIdolFilter('yes')">已回复 <span class="icount" id="ifc-yes">0</span></button>
+    </div>
     <div class="bgrid" id="idol-grid">
       <div class="loading">正在捞瓶子</div>
+    </div>
+  </div>
+
+  <!-- 捞到瓶子弹窗 -->
+  <div class="catch-overlay" id="catchOverlay">
+    <div class="catch-card">
+      <button class="catch-close" onclick="closeCatch()">×</button>
+      <div class="catch-ico" id="catchIco">🍶</div>
+      <div class="catch-title">捞到一个漂流瓶 🌊</div>
+      <div class="catch-content" id="catchContent"></div>
+      <div class="catch-meta" id="catchMeta"></div>
+      <button class="catch-btn" onclick="closeCatch()">🌊 放回大海</button>
+    </div>
+  </div>
+
+  <!-- 我的瓶子详情弹窗 -->
+  <div class="bottle-detail-overlay" id="bottleDetailOverlay">
+    <div class="bottle-detail">
+      <button class="bottle-detail-close" onclick="closeBottleDetail()">×</button>
+      <div class="bottle-detail-ico" id="bdIco">🍶</div>
+      <div class="bottle-detail-title" id="bdTitle">我的漂流瓶</div>
+      <div class="bottle-detail-content" id="bdContent"></div>
+      <div id="bdReply"></div>
+      <div class="bottle-detail-meta" id="bdMeta"></div>
+      <button class="bottle-detail-edit" id="bdEditBtn" onclick="closeBottleDetail()">✏️ 修改这个瓶子</button>
+    </div>
+  </div>
+
+  <!-- 捞起动画层 -->
+  <div class="catch-ripple-wrap" id="catchRippleWrap" style="display:none">
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="catch-ripple"></div>
+      <div class="catch-txt">捞到啦！</div>
     </div>
   </div>
 
@@ -559,7 +755,31 @@ function renderMyBottles(){
   const editForm=document.getElementById('editForm');
   writeForm.style.display='none';
   editForm.style.display='none';
-  const ico=['🍶','🌊','💌'];
+
+  const BOTTLE_COLORS=[
+    // teal
+    {body:'#5ec4b0',shine:'#8ee8d4',dark:'#3a9a88'},
+    // amber
+    {body:'#f4c26a',shine:'#fde095',dark:'#c9913a'},
+    // coral
+    {body:'#f4907a',shine:'#ffb8a5',dark:'#c96050'},
+  ];
+
+  function makeBottleSvg(col,replied){
+    const c=BOTTLE_COLORS[col];
+    const opacity=replied?'1':'0.55';
+    return `<svg viewBox="0 0 52 92" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:${opacity}">
+      <rect x="20" y="1" width="12" height="13" rx="3" fill="${c.dark}" opacity=".7"/>
+      <rect x="18" y="9" width="16" height="6" rx="2" fill="#c8914a"/>
+      <path d="M12 21 Q8 37 8 56 Q8 82 26 84 Q44 82 44 56 Q44 37 40 21 Z" fill="${c.body}"/>
+      <ellipse cx="26" cy="21" rx="14" ry="5" fill="${c.body}"/>
+      <path d="M16 28 Q13 40 13 56 Q13 76 26 79" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity=".28"/>
+      <path d="M19 52 Q26 46 33 52 Q26 58 19 52Z" fill="white" opacity=".18"/>
+      ${replied?`<circle cx="38" cy="18" r="9" fill="#ffd700" stroke="#fff" stroke-width="1.5"/>
+      <text x="38" y="22" text-anchor="middle" font-size="10">✨</text>`:''}
+    </svg>`;
+  }
+
   if(!S.myBottles.length){
     list.innerHTML=`
       <div class="empty" style="padding:20px 0">
@@ -567,27 +787,45 @@ function renderMyBottles(){
         <p>你还没有漂流瓶<br>快来写下第一个！</p>
       </div>`;
   } else {
-    list.innerHTML=S.myBottles.map((b,i)=>`
-      <div class="bc" style="margin-bottom:12px">
-        <span class="bico">${ico[i%ico.length]}</span>
-        <div class="bcon">${esc(b.content)}</div>
-        <div class="bmeta">
-          <span class="tag-mine">我的瓶子 ${i+1}</span>
-          <span>${fmtDate(b.updated_at||b.created_at)}</span>
+    // 图形瓶子展示
+    const bottlesHtml=S.myBottles.map((b,i)=>{
+      const replied=!!b.reply_emoji;
+      return `<div class="my-bottle-item" onclick="openBottleDetail(${i})">
+        <div class="bottle-svg-wrap ${replied?'replied':''}">
+          ${replied?'<div class="bottle-glow"></div>':''}
+          ${makeBottleSvg(i,replied)}
         </div>
-        ${b.reply_emoji
-          ? `<div style="margin-top:10px;padding:10px;background:linear-gradient(135deg,#e0f4ff,#f0e8ff);border-radius:12px;font-size:.88rem;color:#2a4a6a">
-              ☀️ 已被宇辰捞起，并留下了 ${b.reply_emoji}
-             </div>`
-          : `<div style="margin-top:8px;font-size:.78rem;color:#9ab8c8">🌊 随风漂流中...</div>`
-        }
-        <button class="bs" style="margin-top:10px" onclick="startEdit('${b.id}',${i})">✏️ 修改这个瓶子</button>
-      </div>`).join('');
+        <div class="bottle-label">瓶子 ${i+1}</div>
+        ${replied?`<div class="bottle-replied-tag">被捞起 ${b.reply_emoji}</div>`
+          :`<div style="font-size:.68rem;color:rgba(255,255,255,.45)">漂流中…</div>`}
+      </div>`;
+    }).join('');
+    list.innerHTML=`<div class="my-bottles-visual">${bottlesHtml}</div>`;
   }
+
   const canAdd=S.myBottles.length<3;
   list.innerHTML+= canAdd
     ? `<button class="bp" style="margin-top:8px" onclick="showWriteForm()">🌊 再扔一个漂流瓶（${S.myBottles.length}/3）</button>`
     : `<div class="hint" style="text-align:center;margin-top:8px">已有3个漂流瓶，修改其中一个来更新内容吧～</div>`;
+}
+
+function openBottleDetail(idx){
+  const b=S.myBottles[idx];
+  const icos=['🍶','💌','🐚'];
+  document.getElementById('bdIco').textContent=icos[idx%icos.length];
+  document.getElementById('bdTitle').textContent=`我的漂流瓶 ${idx+1}`;
+  document.getElementById('bdContent').textContent=b.content;
+  document.getElementById('bdMeta').textContent=`投出于 ${fmtDate(b.created_at)}`;
+  const replyEl=document.getElementById('bdReply');
+  replyEl.innerHTML=b.reply_emoji
+    ?`<div class="bottle-detail-reply">☀️ 已被宇辰捞起，留下了 ${b.reply_emoji}</div>`
+    :`<div style="margin-top:10px;font-size:.78rem;color:#9ab8c8;text-align:center">🌊 随风漂流中，等待宇辰发现…</div>`;
+  // 编辑按钮
+  document.getElementById('bdEditBtn').onclick=()=>{closeBottleDetail();startEdit(b.id,idx)};
+  document.getElementById('bottleDetailOverlay').classList.add('show');
+}
+function closeBottleDetail(){
+  document.getElementById('bottleDetailOverlay').classList.remove('show');
 }
 function showWriteForm(){
   document.getElementById('writeForm').style.display='';
@@ -644,24 +882,120 @@ function cancelEdit(){
   document.getElementById('myBottlesList').style.display='';
 }
 
-/* ══ 漂流广场 ══ */
+/* ══ 漂流广场 - 海洋捞瓶 ══ */
+const SQ_BOTTLE_CFGS=[
+  {x:8, y:28,delay:0,   dur:3.2,color:'teal'},
+  {x:62,y:45,delay:.8,  dur:3.7,color:'amber'},
+  {x:33,y:18,delay:1.5, dur:2.9,color:'coral'},
+  {x:54,y:12,delay:.4,  dur:3.5,color:'blue'},
+  {x:20,y:52,delay:1.1, dur:3.0,color:'pink'},
+];
+const SQ_SVG_COLORS={
+  teal:{body:'#5ec4b0',shine:'#8ee8d4'},
+  amber:{body:'#f4c26a',shine:'#fde095'},
+  coral:{body:'#f4907a',shine:'#ffb8a5'},
+  blue:{body:'#7ab8f5',shine:'#b0d8ff'},
+  pink:{body:'#e8a5d4',shine:'#ffd0f0'},
+};
+
+function sqBottleSvg(colorKey){
+  const c=SQ_SVG_COLORS[colorKey]||SQ_SVG_COLORS.teal;
+  return `<svg width="44" height="72" viewBox="0 0 52 92" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="20" y="1" width="12" height="13" rx="3" fill="#a07040" opacity=".8"/>
+    <rect x="18" y="9" width="16" height="6" rx="2" fill="#c8914a"/>
+    <path d="M12 21 Q8 37 8 56 Q8 82 26 84 Q44 82 44 56 Q44 37 40 21 Z" fill="${c.body}"/>
+    <ellipse cx="26" cy="21" rx="14" ry="5" fill="${c.body}"/>
+    <path d="M16 28 Q13 40 13 56 Q13 76 26 79" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity=".3"/>
+    <path d="M19 52 Q26 46 33 52 Q26 58 19 52Z" fill="white" opacity=".18"/>
+  </svg>`;
+}
+
+function sqTodayKey(){return 'sq_used_'+new Date().toISOString().slice(0,10)}
+function sqGetUsed(){return parseInt(localStorage.getItem(sqTodayKey())||'0')}
+function sqSetUsed(n){localStorage.setItem(sqTodayKey(),n)}
+
+function sqUpdateUI(){
+  const used=sqGetUsed(); const left=3-used;
+  const dots=document.querySelectorAll('.sq-dot');
+  dots.forEach((d,i)=>{
+    d.className='sq-dot';
+    if(i<used) d.classList.add('used');
+    else if(i===used&&used<3) d.classList.add('active');
+  });
+  document.getElementById('sqCountText').textContent=left>0?`还剩 ${left} 次`:'今日已满';
+  document.getElementById('sqHint').textContent=left>0?'点击瓶子，捞起一条漂流信 🌊':'今天的缘分已用完啦 🌙';
+  document.getElementById('sqExhausted').style.display=left<=0?'block':'none';
+  // 瓶子点击态
+  document.querySelectorAll('.sq-bottle').forEach(b=>{
+    b.style.opacity=left>0?'1':'0.38';
+    b.style.cursor=left>0?'pointer':'not-allowed';
+  });
+}
+
+let _sqBottles=[]; // 缓存从服务器拉到的瓶子列表
+
 async function loadSquare(){
-  const g=document.getElementById('sq-grid');
-  g.innerHTML='<div class="loading">正在打捞漂流瓶</div>';
+  // 初始化星星
+  const stars=document.getElementById('sqStars');
+  if(!stars.children.length){
+    for(let i=0;i<30;i++){
+      const s=document.createElement('div'); s.className='sq-star';
+      s.style.left=Math.random()*100+'%';
+      s.style.top=Math.random()*60+'%';
+      s.style.animationDelay=Math.random()*3+'s';
+      s.style.opacity=Math.random()*.6+.1;
+      stars.appendChild(s);
+    }
+  }
+  // 渲染浮动瓶子
+  const bwrap=document.getElementById('sqBottles');
+  bwrap.innerHTML='';
+  SQ_BOTTLE_CFGS.forEach((cfg,i)=>{
+    const el=document.createElement('div');
+    el.className='sq-bottle';
+    el.style.left=cfg.x+'%';
+    el.style.top=cfg.y+'%';
+    el.style.animationDelay=cfg.delay+'s';
+    el.style.animationDuration=cfg.dur+'s';
+    el.innerHTML=sqBottleSvg(cfg.color);
+    el.addEventListener('click',()=>sqCatch());
+    bwrap.appendChild(el);
+  });
+
+  // 拉取数据（后台静默加载）
   const r=await api('bottles-list-public',{user_id:S.user?.id});
-  if(!r.ok){g.innerHTML='<div class="empty"><span class="ei">😢</span><p>加载失败，请刷新</p></div>';return}
-  if(!r.bottles?.length){
-    g.innerHTML='<div class="empty"><span class="ei">🌊</span><p>海面空空荡荡<br>还没有漂流瓶<br>快来第一个！</p></div>';return}
-  const ico=['🍶','🪸','🐚','🌊','💌','🌟','🐠','🐙','🦋','🪼'];
-  g.innerHTML=r.bottles.map((b,i)=>`
-    <div class="bc" style="animation-delay:${i*.05}s">
-      <span class="bico">${ico[i%ico.length]}</span>
-      <div class="bcon">${esc(b.content)}</div>
-      <div class="bmeta">
-        <span>${b.is_mine?'<span class="tag-mine">我的瓶子</span>':'🌊 匿名'}</span>
-        <span>${fmtDate(b.created_at)}</span>
-      </div>
-    </div>`).join('');
+  if(r.ok&&r.bottles?.length) _sqBottles=r.bottles.filter(b=>!b.is_mine);
+
+  sqUpdateUI();
+}
+
+async function sqCatch(){
+  const used=sqGetUsed();
+  if(used>=3){sqUpdateUI();return}
+  if(!_sqBottles.length){toast('大海里还没有漂流瓶哦～','');return}
+
+  // 随机取一个
+  const b=_sqBottles[Math.floor(Math.random()*_sqBottles.length)];
+  const newUsed=used+1;
+  sqSetUsed(newUsed);
+  sqUpdateUI();
+
+  // 捞起动画
+  const rw=document.getElementById('catchRippleWrap');
+  rw.style.display='flex';
+  setTimeout(()=>{rw.style.display='none'; showCatch(b)}, 950);
+}
+
+const SQ_ICO=['🍶','🪸','🐚','🌊','💌','🌟','🐠','🐙','🦋','🪼'];
+function showCatch(b){
+  const ico=SQ_ICO[Math.floor(Math.random()*SQ_ICO.length)];
+  document.getElementById('catchIco').textContent=ico;
+  document.getElementById('catchContent').textContent=b.content;
+  document.getElementById('catchMeta').textContent=fmtDate(b.created_at);
+  document.getElementById('catchOverlay').classList.add('show');
+}
+function closeCatch(){
+  document.getElementById('catchOverlay').classList.remove('show');
 }
 
 /* ══ 偶像后台 ══ */
@@ -673,25 +1007,76 @@ function enterIdol(){
     <button class="gear-btn" onclick="openPwdModal()" title="修改密码">⚙️</button>`;
   showPage('idol'); loadIdolBottles();
 }
+
+let _idolFilter='all'; // 'all'|'no'|'yes'
+
+function setIdolFilter(f){
+  _idolFilter=f;
+  document.querySelectorAll('.ifilter-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('ifilter-'+f).classList.add('on');
+  filterBottles();
+}
+
 async function loadIdolBottles(){
   const g=document.getElementById('idol-grid');
   g.innerHTML='<div class="loading">正在捞瓶子</div>';
   const r=await api('bottles-list-admin',{idol_secret:CFG.IDOL_PASS});
   if(!r.ok){g.innerHTML='<div class="empty"><span class="ei">😢</span><p>加载失败</p></div>';return}
   S.allBottles=r.bottles||[];
-  document.getElementById('istat').textContent=`共 ${S.allBottles.length} 个瓶子`;
+  updateIdolFilterCounts();
   renderIdol(S.allBottles);
 }
+
+function updateIdolFilterCounts(){
+  const all=S.allBottles.length;
+  const replied=S.allBottles.filter(b=>b.reply_emoji).length;
+  const no=all-replied;
+  document.getElementById('istat').textContent=`共 ${all} 个瓶子`;
+  document.getElementById('ifc-all').textContent=all;
+  document.getElementById('ifc-no').textContent=no;
+  document.getElementById('ifc-yes').textContent=replied;
+}
+
+function getFilteredBottles(){
+  let list=S.allBottles;
+  const q=document.getElementById('si').value.toLowerCase();
+  if(q) list=list.filter(b=>b.content.toLowerCase().includes(q)||(b.nickname||'').toLowerCase().includes(q));
+  if(_idolFilter==='no') list=list.filter(b=>!b.reply_emoji);
+  if(_idolFilter==='yes') list=list.filter(b=>!!b.reply_emoji);
+  return list;
+}
+
+// 统计每个用户的瓶子数
+function buildNickCount(allBottles){
+  const map={};
+  allBottles.forEach(b=>{
+    const n=b.nickname||'神秘粉丝';
+    map[n]=(map[n]||0)+1;
+  });
+  return map;
+}
+
 function renderIdol(list){
   const g=document.getElementById('idol-grid');
-  if(!list.length){g.innerHTML='<div class="empty"><span class="ei">🌊</span><p>还没有粉丝扔瓶子哦</p></div>';return}
+  const filtered=getFilteredBottles();
+  if(!filtered.length){
+    g.innerHTML='<div class="empty"><span class="ei">🌊</span><p>'+(
+      _idolFilter==='no'?'全部都回复啦！好棒✨':
+      _idolFilter==='yes'?'还没有回复过哦':
+      '还没有粉丝扔瓶子哦')+'</p></div>';
+    return;
+  }
   const ico=['🍶','🪸','🐚','💌','🌟','🐠','🐙','🦋','🪼','🌈'];
-  g.innerHTML=list.map((b,i)=>`
-    <div class="bc" style="animation-delay:${i*.04}s">
+  const nickCount=buildNickCount(S.allBottles);
+  g.innerHTML=filtered.map((b,i)=>{
+    const nick=esc(b.nickname||'神秘粉丝');
+    const cnt=nickCount[b.nickname||'神秘粉丝']||1;
+    const countBadge=cnt>1?`<span style="margin-left:5px;font-size:.68rem;background:rgba(41,128,185,.18);border-radius:6px;padding:1px 6px;color:#4a7a9a">${cnt}个瓶</span>`:'';
+    return `<div class="bc" id="bc-${b.id}" style="animation-delay:${i*.04}s">
       <span class="bico">${ico[i%ico.length]}</span>
       <div class="bcon">${esc(b.content)}</div>
       <div class="bmeta">
-        <span class="tag-idol">👤 ${esc(b.nickname||'神秘粉丝')}</span>
+        <span class="tag-idol">👤 ${nick}${countBadge}</span>
         <span>${fmtDate(b.updated_at||b.created_at)}</span>
       </div>
       ${b.reply_emoji
@@ -702,21 +1087,28 @@ function renderIdol(list){
             <button onclick="replyBottle('${b.id}','😆')" style="flex:1;padding:10px;border:none;border-radius:12px;background:#fffbe8;font-size:1.1rem;cursor:pointer">😆<br><span style="font-size:.7rem;color:#9a8a3a">被笑到</span></button>
            </div>`
       }
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
+
 async function replyBottle(bottleId, emoji){
   const r=await api('bottles-reply',{idol_secret:CFG.IDOL_PASS,bottle_id:bottleId,emoji});
   if(r.ok){
     toast(`${emoji} 已回复！粉丝会收到通知～`,'ok');
     const b=S.allBottles.find(x=>x.id===bottleId);
     if(b) b.reply_emoji=emoji;
+    updateIdolFilterCounts();
     renderIdol(S.allBottles);
+    // 自动滚到下一个未回复
+    setTimeout(()=>{
+      const nextUnreplied=document.querySelector('.bc [onclick*="replyBottle"]');
+      if(nextUnreplied) nextUnreplied.closest('.bc').scrollIntoView({behavior:'smooth',block:'center'});
+    }, 200);
   } else toast(r.error||'回复失败','err');
 }
+
 function filterBottles(){
-  const q=document.getElementById('si').value.toLowerCase();
-  renderIdol(q?S.allBottles.filter(b=>
-    b.content.toLowerCase().includes(q)||(b.nickname||'').toLowerCase().includes(q)):S.allBottles);
+  renderIdol(S.allBottles);
 }
 
 /* ══ 初始化 ══ */
