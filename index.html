@@ -991,8 +991,13 @@ function sqUnlockBonus(){
 
 function sqGoWrite(){
   closeSqUnlock();
-  showPage('my');
+  // 正确跳转到我的瓶子页面
+  showPage('write');
   loadMyBottles();
+  // 导航按钮高亮
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.toggle('on',b.dataset.p==='write'));
+  // 显示引导提示
+  toast('💌 投出或修改一个瓶子，即可解锁3次捞瓶机会！','ok');
 }
 
 function closeSqUnlock(){
@@ -1036,6 +1041,13 @@ async function loadSquare(){
   sqUpdateUI();
 }
 
+function sqSeenKey(){return 'sq_seen_'+new Date().toISOString().slice(0,10)}
+function sqGetSeen(){try{return JSON.parse(localStorage.getItem(sqSeenKey())||'[]')}catch{return[]}}
+function sqAddSeen(id){
+  const seen=sqGetSeen();
+  if(!seen.includes(id)){seen.push(id);localStorage.setItem(sqSeenKey(),JSON.stringify(seen))}
+}
+
 async function sqCatch(){
   const used=sqGetUsed();
   const bonus=sqGetBonus();
@@ -1054,6 +1066,17 @@ async function sqCatch(){
 
   if(!_sqBottles.length){toast('大海里还没有漂流瓶哦～','');return}
 
+  // 优先选没看过的，看完一轮再重来
+  const seen=sqGetSeen();
+  let unseen=_sqBottles.filter(b=>!seen.includes(b.id||b._id));
+  if(!unseen.length){
+    // 全看完了，清空记录重新来
+    localStorage.removeItem(sqSeenKey());
+    unseen=_sqBottles;
+  }
+  const b=unseen[Math.floor(Math.random()*unseen.length)];
+  sqAddSeen(b.id||b._id);
+
   // 先扣基础次数，基础用完再扣奖励
   if(used<SQ_BASE) sqSetUsed(used+1);
   else sqSetBonus(bonus+1);
@@ -1063,7 +1086,6 @@ async function sqCatch(){
   // 捞起动画
   const rw=document.getElementById('catchRippleWrap');
   rw.style.display='flex';
-  const b=_sqBottles[Math.floor(Math.random()*_sqBottles.length)];
   setTimeout(()=>{rw.style.display='none'; showCatch(b)}, 950);
 }
 
