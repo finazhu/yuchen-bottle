@@ -462,8 +462,10 @@ textarea.fi{resize:vertical;min-height:115px;line-height:1.75}
           <div class="sq-dot active"></div>
           <div class="sq-dot"></div>
           <div class="sq-dot"></div>
+          <div class="sq-dot"></div>
+          <div class="sq-dot"></div>
         </div>
-        <span id="sqCountText">还剩 3 次</span>
+        <span id="sqCountText">还剩 5 次</span>
       </div>
       <div class="ocean-scene" id="oceanScene">
         <div class="sq-stars" id="sqStars"></div>
@@ -480,6 +482,21 @@ textarea.fi{resize:vertical;min-height:115px;line-height:1.75}
         <span class="ei">🌙</span>
         <p>今天的缘分已用完啦<br>明天再来捞瓶子吧～</p>
       </div>
+    </div>
+  </div>
+
+  <!-- 次数用尽解锁弹窗 -->
+  <div class="modal-overlay" id="sqUnlockOverlay">
+    <div class="modal">
+      <div class="modal-title">🌊 解锁更多捞瓶次数</div>
+      <p style="font-size:.88rem;color:#5a7a8a;line-height:1.85;margin-bottom:20px;text-align:center">
+        今日免费捞瓶次数已用完。<br>
+        投出或修改一个漂流瓶，<br>
+        即可马上额外解锁 <strong style="color:#2980b9">3次</strong> 捞瓶机会哦！✨<br>
+        <span style="font-size:.78rem;color:#aab8c8">（每日限1次）</span>
+      </p>
+      <button class="bp" onclick="sqGoWrite()" style="margin-bottom:10px">✍️ 去写漂流瓶</button>
+      <button class="bs" onclick="closeSqUnlock()">明天再来</button>
     </div>
   </div>
 
@@ -852,6 +869,7 @@ async function throwBottle(){
     S.myBottles.push(r.bottle);
     document.getElementById('writeForm').style.display='none';
     renderMyBottles();
+    sqUnlockBonus(); // 投出瓶子解锁广场奖励次数
   } else toast(r.error||'投递失败','err');
 }
 function startEdit(bid,idx){
@@ -875,6 +893,7 @@ async function saveEdit(){
     ef.style.display='none';
     document.getElementById('myBottlesList').style.display='';
     renderMyBottles();
+    sqUnlockBonus(); // 修改瓶子也解锁广场奖励次数
   } else toast(r.error||'保存失败','err');
 }
 function cancelEdit(){
@@ -911,25 +930,73 @@ function sqBottleSvg(colorKey){
 }
 
 function sqTodayKey(){return 'sq_used_'+new Date().toISOString().slice(0,10)}
+function sqBonusKey(){return 'sq_bonus_'+new Date().toISOString().slice(0,10)}
+function sqBonusUsedKey(){return 'sq_bonus_unlocked_'+new Date().toISOString().slice(0,10)}
+
 function sqGetUsed(){return parseInt(localStorage.getItem(sqTodayKey())||'0')}
 function sqSetUsed(n){localStorage.setItem(sqTodayKey(),n)}
+function sqGetBonus(){return parseInt(localStorage.getItem(sqBonusKey())||'0')}
+function sqSetBonus(n){localStorage.setItem(sqBonusKey(),n)}
+function sqBonusUnlocked(){return localStorage.getItem(sqBonusUsedKey())==='1'}
+function sqSetBonusUnlocked(){localStorage.setItem(sqBonusUsedKey(),'1')}
+
+const SQ_BASE=5; const SQ_BONUS=3;
+
+function sqTotalLeft(){
+  const used=sqGetUsed();
+  const bonus=sqGetBonus();
+  const baseLeft=Math.max(0,SQ_BASE-used);
+  const bonusLeft=Math.max(0,SQ_BONUS-bonus);
+  return baseLeft+bonusLeft;
+}
 
 function sqUpdateUI(){
-  const used=sqGetUsed(); const left=3-used;
+  const used=sqGetUsed();
+  const bonus=sqGetBonus();
+  const total=SQ_BASE+( sqBonusUnlocked()?SQ_BONUS:0 );
+  const totalUsed=used+bonus;
+  const left=total-totalUsed;
+
+  // 更新dots（最多显示5个，解锁后显示奖励状态）
   const dots=document.querySelectorAll('.sq-dot');
   dots.forEach((d,i)=>{
     d.className='sq-dot';
-    if(i<used) d.classList.add('used');
-    else if(i===used&&used<3) d.classList.add('active');
+    if(i<Math.min(totalUsed,SQ_BASE)) d.classList.add('used');
+    else if(i===Math.min(totalUsed,SQ_BASE)&&left>0) d.classList.add('active');
   });
-  document.getElementById('sqCountText').textContent=left>0?`还剩 ${left} 次`:'今日已满';
+
+  const countEl=document.getElementById('sqCountText');
+  if(left>0){
+    countEl.textContent=sqBonusUnlocked()?`还剩 ${left} 次（含奖励）`:`还剩 ${left} 次`;
+  } else {
+    countEl.textContent='今日已满';
+  }
+
   document.getElementById('sqHint').textContent=left>0?'点击瓶子，捞起一条漂流信 🌊':'今天的缘分已用完啦 🌙';
   document.getElementById('sqExhausted').style.display=left<=0?'block':'none';
-  // 瓶子点击态
   document.querySelectorAll('.sq-bottle').forEach(b=>{
     b.style.opacity=left>0?'1':'0.38';
     b.style.cursor=left>0?'pointer':'not-allowed';
   });
+}
+
+// 投出/修改瓶子后调用此函数解锁奖励次数
+function sqUnlockBonus(){
+  if(!sqBonusUnlocked()){
+    sqSetBonusUnlocked();
+    sqUpdateUI();
+    toast('🎉 解锁成功！额外获得3次捞瓶机会！','ok');
+  }
+}
+
+function sqGoWrite(){
+  closeSqUnlock();
+  showPage('my');
+  loadMyBottles();
+}
+
+function closeSqUnlock(){
+  document.getElementById('sqUnlockOverlay').classList.remove('show');
 }
 
 let _sqBottles=[]; // 缓存从服务器拉到的瓶子列表
@@ -971,18 +1038,32 @@ async function loadSquare(){
 
 async function sqCatch(){
   const used=sqGetUsed();
-  if(used>=3){sqUpdateUI();return}
+  const bonus=sqGetBonus();
+  const total=SQ_BASE+(sqBonusUnlocked()?SQ_BONUS:0);
+  const totalUsed=used+bonus;
+
+  if(totalUsed>=total){
+    // 判断是否可以解锁奖励
+    if(!sqBonusUnlocked()){
+      document.getElementById('sqUnlockOverlay').classList.add('show');
+    } else {
+      sqUpdateUI();
+    }
+    return;
+  }
+
   if(!_sqBottles.length){toast('大海里还没有漂流瓶哦～','');return}
 
-  // 随机取一个
-  const b=_sqBottles[Math.floor(Math.random()*_sqBottles.length)];
-  const newUsed=used+1;
-  sqSetUsed(newUsed);
+  // 先扣基础次数，基础用完再扣奖励
+  if(used<SQ_BASE) sqSetUsed(used+1);
+  else sqSetBonus(bonus+1);
+
   sqUpdateUI();
 
   // 捞起动画
   const rw=document.getElementById('catchRippleWrap');
   rw.style.display='flex';
+  const b=_sqBottles[Math.floor(Math.random()*_sqBottles.length)];
   setTimeout(()=>{rw.style.display='none'; showCatch(b)}, 950);
 }
 
