@@ -979,7 +979,13 @@ function sqUpdateUI(){
     b.style.opacity=left>0?'1':'0.38';
     b.style.cursor=left>0?'pointer':'not-allowed';
   });
-}
+
+  // 用完基础5次且未解锁奖励，自动弹出解锁提示
+  if(left<=0 && !sqBonusUnlocked()){
+    setTimeout(()=>{
+      document.getElementById('sqUnlockOverlay').classList.add('show');
+    }, 600);
+  }
 
 // 投出/修改瓶子后调用此函数解锁奖励次数
 function sqUnlockBonus(){
